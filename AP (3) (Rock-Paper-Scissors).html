@@ -61,36 +61,36 @@
   </style>
 </head>
 <body>
-  <h1>Rock Paper Scissors</h1>
+  <h1>Akmuo-Popierius-Žirklės</h1>
 
   <div id="setup">
     <div style="margin-bottom: 10px;">
-      <strong>Number of Rounds:</strong><br />
+      <strong>Turų skaičius:</strong><br />
       <input id="roundInput" type="number" value="3" min="1" style="margin-top: 5px; width: 60px;" />
     </div>
     
     <div style="margin-bottom: 10px;">
-      <strong>Select Difficulty:</strong>
+      <strong>Pasirinkite sunkumo lygį:</strong>
       <div id="difficultyOptions">
-        <label><input type="radio" name="difficulty" value="easy" checked /> Easy</label>
-        <label><input type="radio" name="difficulty" value="normal" /> Normal</label>
-        <label><input type="radio" name="difficulty" value="hard" /> Hard</label>
-        <label><input type="radio" name="difficulty" value="extreme" /> Extreme</label>
+        <label><input type="radio" name="difficulty" value="easy" checked /> Lengva</label>
+        <label><input type="radio" name="difficulty" value="normal" /> Vidutiniškai</label>
+        <label><input type="radio" name="difficulty" value="hard" /> Sunku</label>
+        <label><input type="radio" name="difficulty" value="extreme" /> Labai sunku</label>
       </div>
     </div>
     
-    <button onclick="startGame()">Start Game</button>
+    <button onclick="startGame()">Pradėti žaidimą</button>
   </div>
 
   <div id="choices" style="display: none;">
-    <div class="choice" onclick="play('rock')">Rock</div>
-    <div class="choice" onclick="play('paper')">Paper</div>
-    <div class="choice" onclick="play('scissors')">Scissors</div>
+    <div class="choice" onclick="play('rock')">Akmuo</div>
+    <div class="choice" onclick="play('paper')">Popierius</div>
+    <div class="choice" onclick="play('scissors')">Žirklės</div>
   </div>
 
   <div id="status" style="display: none;"></div>
   <div id="score" style="display: none;"></div>
-  <button onclick="restartGame()">Restart Game</button>
+  <button onclick="restartGame()">Paleisti iš naujo!</button>
 
   <script>
     let playerWins = 0;
@@ -131,12 +131,12 @@
       
       if (result === 'win') {
         playerWins++;
-        document.getElementById('status').innerText = `You Win! ${playerChoice} beats ${computerChoice}.`;
+        document.getElementById('status').innerText = `Jūs laimėjote turą! ${playerChoice} muša ${computerChoice}.`;
       } else if (result === 'lose') {
         computerWins++;
-        document.getElementById('status').innerText = `You Lose! ${computerChoice} beats ${playerChoice}.`;
+        document.getElementById('status').innerText = `Kompiuteris laimėjo turą! ${computerChoice} muša ${playerChoice}.`;
       } else {
-        document.getElementById('status').innerText = `It's a Draw! You both chose ${playerChoice}.`;
+        document.getElementById('status').innerText = `Lygiosios! Abu pasirinkote ${playerChoice}.`;
       }
 
       currentRound++;
@@ -204,16 +204,16 @@
     }
 
     function updateScore() {
-      document.getElementById('score').innerText = `Score – You: ${playerWins} | Computer: ${computerWins} | Round: ${currentRound}/${totalRounds}`;
+      document.getElementById('score').innerText = `Taškai – Jūsų: ${playerWins} | Kompiuterio: ${computerWins} | Turas: ${currentRound}/${totalRounds}`;
     }
 
     function declareFinalWinner() {
       if (playerWins > computerWins) {
-        document.getElementById('status').innerText = `🏆 You win the match! (${playerWins} - ${computerWins})`;
+        document.getElementById('status').innerText = `🏆 Jūs laimėjote! (${playerWins} - ${computerWins})`;
       } else if (computerWins > playerWins) {
-        document.getElementById('status').innerText = `💻 Computer wins the match! (${computerWins} - ${playerWins})`;
+        document.getElementById('status').innerText = `💻 Kompiuteris laimėjo! (${computerWins} - ${playerWins})`;
       } else {
-        document.getElementById('status').innerText = `🤝 It's a draw!`;
+        document.getElementById('status').innerText = `🤝 Lygiosios!`;
       }
       document.getElementById('choices').style.display = 'none'; // Hide choices after match
     }
