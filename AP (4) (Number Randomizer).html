@@ -66,13 +66,13 @@
   </style>
 </head>
 <body>
-  <h1>Random Number Generator</h1>
+  <h1>Skaičių generatorius</h1>
 
   <div id="generator">
-    <input type="number" id="min" placeholder="Minimum" />
-    <input type="number" id="max" placeholder="Maximum" />
-    <button onclick="generateNumber()">Generate Number</button>
-    <button id="resetButton" onclick="resetInputs()">Reset</button>
+    <input type="number" id="min" placeholder="Minimalus" />
+    <input type="number" id="max" placeholder="Maksimalus" />
+    <button onclick="generateNumber()">Generuoti skaičių</button>
+    <button id="resetButton" onclick="resetInputs()">Pakartoti</button>
   </div>
 
   <div id="result"></div>
@@ -85,19 +85,19 @@
 
       // Check if the input is valid
       if (isNaN(min) || isNaN(max)) {
-        resultDiv.innerText = 'Please enter valid numbers!';
+        resultDiv.innerText = 'Prašau įveskite galiojančius skaičius!';
         resultDiv.classList.remove('show');
         return;
       }
       if (min >= max) {
-        resultDiv.innerText = 'Minimum should be less than Maximum!';
+        resultDiv.innerText = 'Minimalus turi būti mažesnis už maksimumą!';
         resultDiv.classList.remove('show');
         return;
       }
 
       // Generate a random number between min and max
       const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-      resultDiv.innerText = `Generated Number: ${randomNumber}`;
+      resultDiv.innerText = `Skaičius: ${randomNumber}`;
       resultDiv.classList.add('show'); // Add class to fade in the result
     }
 
