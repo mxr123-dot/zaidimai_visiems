@@ -90,7 +90,7 @@
 
   <div id="status" style="display: none;"></div>
   <div id="score" style="display: none;"></div>
-  <button onclick="restartGame()">Paleisti iš naujo!</button>
+  <button onclick="restartGame()">Paleisti iš naujo</button>
 
   <script>
     let playerWins = 0;
@@ -106,10 +106,10 @@
       currentRound = 0;
       playerWins = 0;
       computerWins = 0;
-      document.getElementById('setup').style.display = 'none'; // Hide setup
-      document.getElementById('choices').style.display = 'flex'; // Show choices
-      document.getElementById('status').style.display = 'block'; // Show status
-      document.getElementById('score').style.display = 'block'; // Show score
+      document.getElementById('setup').style.display = 'none';
+      document.getElementById('choices').style.display = 'flex';
+      document.getElementById('status').style.display = 'block';
+      document.getElementById('score').style.display = 'block';
       updateScore();
     }
 
@@ -117,26 +117,32 @@
       currentRound = 0;
       playerWins = 0;
       computerWins = 0;
-      playerLastChoice = ''; // Reset the last choice
-      document.getElementById('setup').style.display = 'block'; // Show setup
-      document.getElementById('choices').style.display = 'none'; // Hide choices
-      document.getElementById('status').style.display = 'none'; // Hide status
-      document.getElementById('score').style.display = 'none'; // Hide score
+      playerLastChoice = '';
+      document.getElementById('setup').style.display = 'block';
+      document.getElementById('choices').style.display = 'none';
+      document.getElementById('status').style.display = 'none';
+      document.getElementById('score').style.display = 'none';
     }
 
     function play(playerChoice) {
-      playerLastChoice = playerChoice; // Track the player's choice
+      playerLastChoice = playerChoice;
       const computerChoice = getComputerChoice();
       const result = determineWinner(playerChoice, computerChoice);
-      
+
+      const names = {
+        rock: 'Akmuo',
+        paper: 'Popierius',
+        scissors: 'Žirklės'
+      };
+
       if (result === 'win') {
         playerWins++;
-        document.getElementById('status').innerText = `Jūs laimėjote turą! ${playerChoice} muša ${computerChoice}.`;
+        document.getElementById('status').innerText = `Tu laimėjai! ${names[playerChoice]} nugali ${names[computerChoice]}.`;
       } else if (result === 'lose') {
         computerWins++;
-        document.getElementById('status').innerText = `Kompiuteris laimėjo turą! ${computerChoice} muša ${playerChoice}.`;
+        document.getElementById('status').innerText = `Kompiuteris laimėjo! ${names[computerChoice]} nugali ${names[playerChoice]}.`;
       } else {
-        document.getElementById('status').innerText = `Lygiosios! Abu pasirinkote ${playerChoice}.`;
+        document.getElementById('status').innerText = `Lygiosios! Abu pasirinkote ${names[playerChoice]}.`;
       }
 
       currentRound++;
@@ -152,20 +158,29 @@
       if (difficulty === 'easy') {
         return choices[Math.floor(Math.random() * choices.length)];
       } else if (difficulty === 'normal') {
-        // Randomly favoring the player to make it slightly easier
         return Math.random() < 0.2 ? choices[Math.floor(Math.random() * choices.length)] : getWinningMove();
       } else if (difficulty === 'hard') {
-        // Hard difficulty: always trying to beat the player
         return getWinningMove();
       } else {
-        // Extreme difficulty: consistently beats the player's last choice
         return getExtremeMove();
       }
     }
 
     function getWinningMove() {
-      // Logic to pick the winning move against the player
-      const playerLastChoice = document.getElementById('status').innerText.split(' ')[2]; // Grabs last player's choice
+      const playerLastChoice = document.getElementById('status').innerText.split(' ')[2];
+      switch (playerLastChoice) {
+        case 'Akmuo':
+          return 'paper';
+        case 'Popierius':
+          return 'scissors';
+        case 'Žirklės':
+          return 'rock';
+        default:
+          return 'rock';
+      }
+    }
+
+    function getExtremeMove() {
       switch (playerLastChoice) {
         case 'rock':
           return 'paper';
@@ -174,29 +189,16 @@
         case 'scissors':
           return 'rock';
         default:
-          return 'rock'; // Default to rock
-      }
-    }
-
-    function getExtremeMove() {
-      switch (playerLastChoice) {
-        case 'rock':
-          return 'paper'; // Paper beats Rock
-        case 'paper':
-          return 'scissors'; // Scissors beat Paper
-        case 'scissors':
-          return 'rock'; // Rock beats Scissors
-        default:
-          return 'rock'; // Default to rock if no choice was made
+          return 'rock';
       }
     }
 
     function determineWinner(player, computer) {
       if (player === computer) return 'draw';
       if (
-        (player === 'Akmuo' && computer === 'Žirklės') ||
-        (player === 'Žirklės' && computer === 'Popierius') ||
-        (player === 'Popierius' && computer === 'Akmuo')
+        (player === 'rock' && computer === 'scissors') ||
+        (player === 'scissors' && computer === 'paper') ||
+        (player === 'paper' && computer === 'rock')
       ) {
         return 'win';
       }
@@ -204,19 +206,20 @@
     }
 
     function updateScore() {
-      document.getElementById('score').innerText = `Taškai – Jūsų: ${playerWins} | Kompiuterio: ${computerWins} | Turas: ${currentRound}/${totalRounds}`;
+      document.getElementById('score').innerText = `Rezultatas –> Tu: ${playerWins} | Kompiuteris: ${computerWins} | Raundas: ${currentRound}/${totalRounds}`;
     }
 
     function declareFinalWinner() {
       if (playerWins > computerWins) {
-        document.getElementById('status').innerText = `🏆 Jūs laimėjote! (${playerWins} - ${computerWins})`;
+        document.getElementById('status').innerText = `🏆 Tu laimėjai rungtynes! (${playerWins} - ${computerWins})`;
       } else if (computerWins > playerWins) {
-        document.getElementById('status').innerText = `💻 Kompiuteris laimėjo! (${computerWins} - ${playerWins})`;
+        document.getElementById('status').innerText = `💻 Kompiuteris laimėjo rungtynes! (${computerWins} - ${playerWins})`;
       } else {
         document.getElementById('status').innerText = `🤝 Lygiosios!`;
       }
-      document.getElementById('choices').style.display = 'none'; // Hide choices after match
+      document.getElementById('choices').style.display = 'none';
     }
   </script>
 </body>
 </html>
+
