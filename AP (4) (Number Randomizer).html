@@ -13,26 +13,32 @@
       align-items: center;
       margin-top: 50px;
     }
+
     h1 {
       margin-bottom: 20px;
     }
+
     #generator {
       background: #ffffff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
       margin-bottom: 20px;
-      width: 280px;
+      width: 320px;
       text-align: center;
     }
+
     input {
-      width: 100%;
+      width: 80%;
+      max-width: 200px;
       padding: 10px;
-      margin: 10px 0;
+      margin: 10px auto;
+      display: block;
       border: 2px solid #007BFF;
       border-radius: 5px;
       font-size: 1rem;
     }
+
     button {
       padding: 10px;
       background-color: #007BFF;
@@ -43,23 +49,28 @@
       font-size: 1rem;
       width: 100%;
       transition: background-color 0.3s;
+      margin-top: 10px;
     }
+
     button:hover {
       background-color: #0056b3;
     }
+
     #result {
       font-size: 1.5rem;
       margin-top: 20px;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
     }
+
     #result.show {
       opacity: 1;
     }
+
     #resetButton {
       background-color: #dc3545;
-      margin-top: 10px;
     }
+
     #resetButton:hover {
       background-color: #c82333;
     }
@@ -83,7 +94,6 @@
       const max = parseInt(document.getElementById('max').value);
       const resultDiv = document.getElementById('result');
 
-      // Check if the input is valid
       if (isNaN(min) || isNaN(max)) {
         resultDiv.innerText = 'Prašau įveskite galiojančius skaičius!';
         resultDiv.classList.remove('show');
@@ -95,10 +105,9 @@
         return;
       }
 
-      // Generate a random number between min and max
       const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
       resultDiv.innerText = `Skaičius: ${randomNumber}`;
-      resultDiv.classList.add('show'); // Add class to fade in the result
+      resultDiv.classList.add('show');
     }
 
     function resetInputs() {
@@ -110,3 +119,4 @@
   </script>
 </body>
 </html>
+
