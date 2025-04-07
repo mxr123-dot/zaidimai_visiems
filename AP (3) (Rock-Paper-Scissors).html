@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Scissors</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #setup {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      width: 280px;
+    }
+    #choices {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .choice {
+      padding: 10px 20px;
+      background: #fff;
+      border: 2px solid #007BFF;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .choice:hover {
+      background-color: #007BFF;
+      color: white;
+    }
+    #difficultyOptions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    #status, #score {
+      margin-top: 15px;
+      font-size: 1.2rem;
+    }
+    button {
+      padding: 8px;
+      margin-top: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors</h1>
+
+  <div id="setup">
+    <div style="margin-bottom: 10px;">
+      <strong>Number of Rounds:</strong><br />
+      <input id="roundInput" type="number" value="3" min="1" style="margin-top: 5px; width: 60px;" />
+    </div>
+    
+    <div style="margin-bottom: 10px;">
+      <strong>Select Difficulty:</strong>
+      <div id="difficultyOptions">
+        <label><input type="radio" name="difficulty" value="easy" checked /> Easy</label>
+        <label><input type="radio" name="difficulty" value="normal" /> Normal</label>
+        <label><input type="radio" name="difficulty" value="hard" /> Hard</label>
+        <label><input type="radio" name="difficulty" value="extreme" /> Extreme</label>
+      </div>
+    </div>
+    
+    <button onclick="startGame()">Start Game</button>
+  </div>
+
+  <div id="choices" style="display: none;">
+    <div class="choice" onclick="play('rock')">Rock</div>
+    <div class="choice" onclick="play('paper')">Paper</div>
+    <div class="choice" onclick="play('scissors')">Scissors</div>
+  </div>
+
+  <div id="status" style="display: none;"></div>
+  <div id="score" style="display: none;"></div>
+  <button onclick="restartGame()">Restart Game</button>
+
+  <script>
+    let playerWins = 0;
+    let computerWins = 0;
+    let totalRounds = 3;
+    let currentRound = 0;
+    let difficulty = 'easy';
+    let playerLastChoice = ''; // Track the player's last choice for Extreme difficulty
+
+    function startGame() {
+      totalRounds = parseInt(document.getElementById('roundInput').value) || 3;
+      difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+      currentRound = 0;
+      playerWins = 0;
+      computerWins = 0;
+      document.getElementById('setup').style.display = 'none'; // Hide setup
+      document.getElementById('choices').style.display = 'flex'; // Show choices
+      document.getElementById('status').style.display = 'block'; // Show status
+      document.getElementById('score').style.display = 'block'; // Show score
+      updateScore();
+    }
+
+    function restartGame() {
+      currentRound = 0;
+      playerWins = 0;
+      computerWins = 0;
+      playerLastChoice = ''; // Reset the last choice
+      document.getElementById('setup').style.display = 'block'; // Show setup
+      document.getElementById('choices').style.display = 'none'; // Hide choices
+      document.getElementById('status').style.display = 'none'; // Hide status
+      document.getElementById('score').style.display = 'none'; // Hide score
+    }
+
+    function play(playerChoice) {
+      playerLastChoice = playerChoice; // Track the player's choice
+      const computerChoice = getComputerChoice();
+      const result = determineWinner(playerChoice, computerChoice);
+      
+      if (result === 'win') {
+        playerWins++;
+        document.getElementById('status').innerText = `You Win! ${playerChoice} beats ${computerChoice}.`;
+      } else if (result === 'lose') {
+        computerWins++;
+        document.getElementById('status').innerText = `You Lose! ${computerChoice} beats ${playerChoice}.`;
+      } else {
+        document.getElementById('status').innerText = `It's a Draw! You both chose ${playerChoice}.`;
+      }
+
+      currentRound++;
+      updateScore();
+
+      if (currentRound >= totalRounds) {
+        setTimeout(declareFinalWinner, 1000);
+      }
+    }
+
+    function getComputerChoice() {
+      const choices = ['rock', 'paper', 'scissors'];
+      if (difficulty === 'easy') {
+        return choices[Math.floor(Math.random() * choices.length)];
+      } else if (difficulty === 'normal') {
+        // Randomly favoring the player to make it slightly easier
+        return Math.random() < 0.2 ? choices[Math.floor(Math.random() * choices.length)] : getWinningMove();
+      } else if (difficulty === 'hard') {
+        // Hard difficulty: always trying to beat the player
+        return getWinningMove();
+      } else {
+        // Extreme difficulty: consistently beats the player's last choice
+        return getExtremeMove();
+      }
+    }
+
+    function getWinningMove() {
+      // Logic to pick the winning move against the player
+      const playerLastChoice = document.getElementById('status').innerText.split(' ')[2]; // Grabs last player's choice
+      switch (playerLastChoice) {
+        case 'rock':
+          return 'paper';
+        case 'paper':
+          return 'scissors';
+        case 'scissors':
+          return 'rock';
+        default:
+          return 'rock'; // Default to rock
+      }
+    }
+
+    function getExtremeMove() {
+      switch (playerLastChoice) {
+        case 'rock':
+          return 'paper'; // Paper beats Rock
+        case 'paper':
+          return 'scissors'; // Scissors beat Paper
+        case 'scissors':
+          return 'rock'; // Rock beats Scissors
+        default:
+          return 'rock'; // Default to rock if no choice was made
+      }
+    }
+
+    function determineWinner(player, computer) {
+      if (player === computer) return 'draw';
+      if (
+        (player === 'rock' && computer === 'scissors') ||
+        (player === 'scissors' && computer === 'paper') ||
+        (player === 'paper' && computer === 'rock')
+      ) {
+        return 'win';
+      }
+      return 'lose';
+    }
+
+    function updateScore() {
+      document.getElementById('score').innerText = `Score – You: ${playerWins} | Computer: ${computerWins} | Round: ${currentRound}/${totalRounds}`;
+    }
+
+    function declareFinalWinner() {
+      if (playerWins > computerWins) {
+        document.getElementById('status').innerText = `🏆 You win the match! (${playerWins} - ${computerWins})`;
+      } else if (computerWins > playerWins) {
+        document.getElementById('status').innerText = `💻 Computer wins the match! (${computerWins} - ${playerWins})`;
+      } else {
+        document.getElementById('status').innerText = `🤝 It's a draw!`;
+      }
+      document.getElementById('choices').style.display = 'none'; // Hide choices after match
+    }
+  </script>
+</body>
+</html>

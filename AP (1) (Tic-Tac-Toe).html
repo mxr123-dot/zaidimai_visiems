@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic Tac Toe vs Computer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #setup {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      width: 280px;
+    }
+    #difficultyOptions {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 5px;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+    }
+    .cell {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      border: 2px solid #ccc;
+    }
+    .cell:hover {
+      background-color: #f0f0f0;
+    }
+    #status, #score {
+      margin-top: 15px;
+      font-size: 1.2rem;
+    }
+    button, input {
+      padding: 8px;
+      margin-top: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kryžiukai ir Nuliukai</h1>
+
+  <div id="setup">
+    <div style="margin-bottom: 10px;">
+      <strong>Turų skaičius:</strong><br/>
+      <input id="roundInput" type="number" value="3" min="1" style="margin-top: 5px; width: 60px;" />
+    </div>
+
+    <div style="margin-bottom: 10px;">
+      <strong>Pasirinkite sunkumo lygį:</strong>
+      <div id="difficultyOptions">
+        <label><input type="radio" name="difficulty" value="easy" checked /> Lengva</label>
+        <label><input type="radio" name="difficulty" value="normal" /> Vidutiniškai</label>
+        <label><input type="radio" name="difficulty" value="hard" /> Sunku</label>
+        <label><input type="radio" name="difficulty" value="extreme" /> Labai sunku</label>
+      </div>
+    </div>
+
+    <button onclick="startGame()">Pradėti</button>
+  </div>
+
+  <div id="board" style="display: none;"></div>
+  <div id="status" style="display: none;"></div>
+  <div id="score" style="display: none;"></div>
+  <button onclick="restartGame()">Paleisti iš naujo</button>
+
+  <script>
+    const board = document.getElementById('board');
+    const status = document.getElementById('status');
+    const scoreDisplay = document.getElementById('score');
+    const roundInput = document.getElementById('roundInput');
+    let difficulty = 'easy';
+
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let cells = [];
+    let totalRounds = 3;
+    let currentRound = 0;
+    let playerWins = 0;
+    let computerWins = 0;
+
+    function startGame() {
+      totalRounds = parseInt(roundInput.value) || 3;
+      difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+      currentRound = 0;
+      playerWins = 0;
+      computerWins = 0;
+      updateScore();
+      document.getElementById('setup').style.display = 'none'; // Hide setup
+      board.style.display = 'grid'; // Show game board
+      status.style.display = 'block'; // Show status
+      scoreDisplay.style.display = 'block'; // Show score
+      createBoard(); // Show game board
+    }
+
+    function restartGame() {
+      currentRound = 0;
+      playerWins = 0;
+      computerWins = 0;
+      gameActive = true;
+      updateScore();
+      createBoard();
+      document.getElementById('setup').style.display = 'block'; // Show setup
+      board.style.display = 'none'; // Hide game board
+      status.style.display = 'none'; // Hide status
+      scoreDisplay.style.display = 'none'; // Hide score
+      status.textContent = "Žaidimas buvo paleistas iš naujo. Jūsų eilė (X)";
+    }
+
+    function createBoard() {
+      board.innerHTML = '';
+      cells = [];
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', handleCellClick);
+        board.appendChild(cell);
+        cells.push(cell);
+      }
+      currentPlayer = 'X';
+      gameActive = true;
+      status.textContent = `Turas ${currentRound + 1} – Jūsų eilė (X)`;
+    }
+
+    function handleCellClick(e) {
+      const cell = e.target;
+      if (!gameActive || cell.textContent !== '' || currentPlayer !== 'X') return;
+
+      makeMove(cell, 'X');
+      if (checkEndGame()) return;
+
+      currentPlayer = 'O';
+      status.textContent = "Kompiuterio eilė (O)";
+      setTimeout(() => {
+        computerMove();
+        if (!checkEndGame()) {
+          currentPlayer = 'X';
+          status.textContent = "Jūsų eilė (X)";
+        }
+      }, 400);
+    }
+
+    function makeMove(cell, player) {
+      cell.textContent = player;
+    }
+
+    function computerMove() {
+      let move;
+      switch (difficulty) {
+        case 'easy': move = getRandomMove(); break;
+        case 'normal': move = getNormalMove(); break;
+        case 'hard': move = getHardMove(); break;
+        case 'extreme': move = getBestMove('O'); break;
+      }
+      if (move !== null) makeMove(cells[move], 'O');
+    }
+
+    function getRandomMove() {
+      const empty = getEmptyIndices();
+      return empty.length ? empty[Math.floor(Math.random() * empty.length)] : null;
+    }
+
+    function getNormalMove() {
+      return getBlockingMove('X') ?? getRandomMove();
+    }
+
+    function getHardMove() {
+      return getWinningMove('O') ?? getBlockingMove('X') ?? getRandomMove();
+    }
+
+    function getBlockingMove(player) {
+      return findBestLine(player);
+    }
+
+    function getWinningMove(player) {
+      return findBestLine(player);
+    }
+
+    function findBestLine(player) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      for (let [a,b,c] of winPatterns) {
+        const line = [cells[a].textContent, cells[b].textContent, cells[c].textContent];
+        if (line.filter(v => v === player).length === 2 && line.includes('')) {
+          return [a,b,c][line.indexOf('')];
+        }
+      }
+      return null;
+    }
+
+    function getEmptyIndices() {
+      return cells.map((c, i) => c.textContent === '' ? i : null).filter(i => i !== null);
+    }
+
+    function checkEndGame() {
+      if (checkWinner('X')) {
+        status.textContent = 'Jūs laimėjote!';
+        playerWins++;
+        endRound();
+        return true;
+      } else if (checkWinner('O')) {
+        status.textContent = 'Kompiuteris laimėjote!';
+        computerWins++;
+        endRound();
+        return true;
+      } else if (cells.every(cell => cell.textContent !== '')) {
+        status.textContent = "Lygiosios!";
+        endRound();
+        return true;
+      }
+      return false;
+    }
+
+    function endRound() {
+      gameActive = false;
+      updateScore();
+      currentRound++;
+      if (currentRound < totalRounds) {
+        setTimeout(() => createBoard(), 1000);
+      } else {
+        setTimeout(() => {
+          declareFinalWinner();
+        }, 1000);
+      }
+    }
+
+    function declareFinalWinner() {
+      if (playerWins > computerWins) {
+        status.textContent = `🏆 Jūs laimėjote! (${playerWins} - ${computerWins})`;
+      } else if (computerWins > playerWins) {
+        status.textContent = `💻 Kompiuteris laimėjo! (${computerWins} - ${playerWins})`;
+      } else {
+        status.textContent = "🤝 Lygiosios!";
+      }
+    }
+
+    function updateScore() {
+      scoreDisplay.textContent = `Taškai – Jūsų: ${playerWins} | Kompiuterio: ${computerWins} | Turai ${currentRound + 1}/${totalRounds}`;
+    }
+
+    function checkWinner(player) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return winPatterns.some(([a,b,c]) =>
+        cells[a].textContent === player &&
+        cells[b].textContent === player &&
+        cells[c].textContent === player
+      );
+    }
+
+    function getBestMove(player) {
+      const opponent = player === 'X' ? 'O' : 'X';
+      function minimax(depth, isMax) {
+        if (checkWinner('O')) return { score: 10 - depth };
+        if (checkWinner('X')) return { score: depth - 10 };
+        if (getEmptyIndices().length === 0) return { score: 0 };
+
+        const moves = [];
+        getEmptyIndices().forEach(i => {
+          cells[i].textContent = isMax ? player : opponent;
+          const result = minimax(depth + 1, !isMax);
+          cells[i].textContent = '';
+          moves.push({ index: i, score: result.score });
+        });
+        return isMax
+          ? moves.reduce((best, m) => (m.score > best.score ? m : best))
+          : moves.reduce((best, m) => (m.score < best.score ? m : best));
+      }
+      return minimax(0, true).index;
+    }
+  </script>
+</body>
+</html>
+

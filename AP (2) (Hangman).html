@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hangman Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #word {
+      font-size: 2rem;
+      letter-spacing: 5px;
+      margin-bottom: 20px;
+    }
+    #letters,
+    #hangman {
+      display: none;
+    }
+    .letter-button {
+      padding: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+      border: 2px solid #007BFF;
+      background-color: #ffffff;
+      color: #007BFF;
+      border-radius: 5px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .letter-button:hover {
+      background-color: #007BFF;
+      color: #ffffff;
+    }
+    .used {
+      background-color: #cccccc;
+      color: #666666;
+      cursor: not-allowed;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 1rem;
+      margin: 5px;
+      width: 200px;
+      text-align: center;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+    }
+    #status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+    #hangman {
+      margin: 20px;
+      font-size: 1.5rem;
+      white-space: pre;
+    }
+    #wordInputContainer {
+      margin-bottom: 20px;
+    }
+    #keyboard {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pakaruoklis</h1>
+
+  <div id="hangman"></div>
+  <div id="word"></div>
+  <div id="letters"></div>
+
+  <div id="wordInputContainer">
+    <input type="text" id="wordInput" placeholder="Įveskite žodį" />
+    <button onclick="startGame()">Pradėti</button>
+  </div>
+
+  <div id="keyboard"></div>
+  <div id="status"></div>
+  <button id="returnHomeButton" style="display:none;" onclick="returnHome()">Grįžti</button>
+
+  <script>
+    let selectedWord = '';
+    let guessedLetters = [];
+    let remainingGuesses = 6; // Changed from 7 to 6
+
+    function startGame() {
+      const wordInput = document.getElementById('wordInput').value.trim().toLowerCase();
+      if (!wordInput) {
+        alert('Prašau įveskite žodį!');
+        return;
+      }
+
+      selectedWord = wordInput;
+      initializeGame();
+    }
+
+    function initializeGame() {
+      guessedLetters = [];
+      remainingGuesses = 6; // Changed from 7 to 6
+      updateWordDisplay();
+      updateStatus();
+      generateAlphabetButtons();
+      drawHangman();
+
+      // Show game UI
+      document.getElementById('hangman').style.display = 'block';
+      document.getElementById('letters').style.display = 'block';
+      document.getElementById('keyboard').style.display = 'block';
+      document.getElementById('wordInputContainer').style.display = 'none';
+      document.getElementById('returnHomeButton').style.display = 'none';
+    }
+
+    function generateAlphabetButtons() {
+      const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+      const keyboard = document.getElementById('keyboard');
+      keyboard.innerHTML = '';
+
+      alphabet.split('').forEach(letter => {
+        const btn = document.createElement('button');
+        btn.innerText = letter;
+        btn.className = 'letter-button';
+        btn.onclick = () => guessLetter(letter, btn);
+        keyboard.appendChild(btn);
+      });
+
+      const spaceBtn = document.createElement('button');
+      spaceBtn.innerText = 'Tarpas';
+      spaceBtn.className = 'letter-button';
+      spaceBtn.onclick = () => guessLetter(' ', spaceBtn);
+      keyboard.appendChild(spaceBtn);
+    }
+
+    function updateWordDisplay() {
+      const word = selectedWord
+        .split('')
+        .map(l => (guessedLetters.includes(l) ? l : '_'))
+        .join(' ');
+      document.getElementById('word').innerText = word;
+      document.getElementById('letters').innerText = `Neteisingos raidės: ${guessedLetters.join(', ')}`;
+    }
+
+    function guessLetter(letter, button) {
+      if (guessedLetters.includes(letter)) return;
+
+      guessedLetters.push(letter);
+      button.classList.add('used');
+      button.disabled = true;
+
+      if (!selectedWord.includes(letter)) {
+        remainingGuesses--;
+      }
+
+      updateWordDisplay();
+      updateStatus();
+      drawHangman();
+      checkGameOver();
+    }
+
+    function updateStatus() {
+      document.getElementById('status').innerText = `Liko bandymų: ${remainingGuesses}`;
+    }
+
+    function drawHangman() {
+      const parts = [
+        "  |    |",
+        "  |    O",
+        "  |    |",
+        "  |   /|\\",
+        "  |    |",
+        "  |   / \\",
+      ];
+
+      const incorrectGuesses = guessedLetters.filter(l => !selectedWord.includes(l)).length;
+      let drawing = "  ------\n";
+      for (let i = 0; i < parts.length; i++) {
+        drawing += (i < incorrectGuesses ? parts[i] : "  |") + "\n";
+      }
+      document.getElementById('hangman').innerText = drawing;
+    }
+
+    function checkGameOver() {
+      if (remainingGuesses === 0) {
+        document.getElementById('status').innerText = `Pralaimėjote! Žodis buvo "${selectedWord}".`;
+        disableAllButtons();
+        document.getElementById('returnHomeButton').style.display = 'block';
+      } else if (selectedWord.split('').every(l => guessedLetters.includes(l))) {
+        document.getElementById('status').innerText = 'Congratulations! You guessed the word!';
+        disableAllButtons();
+        document.getElementById('returnHomeButton').style.display = 'block';
+      }
+    }
+
+    function disableAllButtons() {
+      document.querySelectorAll('.letter-button').forEach(btn => btn.disabled = true);
+    }
+
+    function resetGame() {
+      document.getElementById('wordInputContainer').style.display = 'block';
+      document.getElementById('wordInput').value = '';
+      document.getElementById('returnHomeButton').style.display = 'none';
+      document.getElementById('status').innerText = '';
+      document.getElementById('letters').style.display = 'none';
+      document.getElementById('hangman').style.display = 'none';
+      document.getElementById('keyboard').style.display = 'none';
+      document.getElementById('word').innerText = '';
+
+      selectedWord = '';
+      guessedLetters = [];
+      remainingGuesses = 6; // Also reset here
+    }
+
+    function returnHome() {
+      resetGame();
+    }
+
+    // Initial setup
+    resetGame();
+  </script>
+</body>
+</html>
