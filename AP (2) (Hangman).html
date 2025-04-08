@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hangman Game</title>
+  <title>Kartuvės</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -75,6 +75,11 @@
     #keyboard {
       display: none;
     }
+    #incorrect-letters {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: red;
+    }
   </style>
 </head>
 <body>
@@ -83,6 +88,7 @@
   <div id="hangman"></div>
   <div id="word"></div>
   <div id="letters"></div>
+  <div id="incorrect-letters"></div>
 
   <div id="wordInputContainer">
     <input type="text" id="wordInput" placeholder="Įveskite žodį" />
@@ -96,7 +102,7 @@
   <script>
     let selectedWord = '';
     let guessedLetters = [];
-    let remainingGuesses = 6; // Changed from 7 to 6
+    let remainingGuesses = 6;
 
     function startGame() {
       const wordInput = document.getElementById('wordInput').value.trim().toLowerCase();
@@ -111,13 +117,13 @@
 
     function initializeGame() {
       guessedLetters = [];
-      remainingGuesses = 6; // Changed from 7 to 6
+      remainingGuesses = 6;
       updateWordDisplay();
       updateStatus();
+      updateIncorrectLetters();
       generateAlphabetButtons();
       drawHangman();
 
-      // Show game UI
       document.getElementById('hangman').style.display = 'block';
       document.getElementById('letters').style.display = 'block';
       document.getElementById('keyboard').style.display = 'block';
@@ -151,7 +157,15 @@
         .map(l => (guessedLetters.includes(l) ? l : '_'))
         .join(' ');
       document.getElementById('word').innerText = word;
-      document.getElementById('letters').innerText = `Teisingos raidės: ${guessedLetters.join(', ')}`;
+
+      const correctLetters = guessedLetters.filter(l => selectedWord.includes(l));
+      document.getElementById('letters').innerText = `Teisingos raidės: ${correctLetters.join(', ')}`;
+    }
+
+    function updateIncorrectLetters() {
+      const incorrectLetters = guessedLetters.filter(l => !selectedWord.includes(l));
+      document.getElementById('incorrect-letters').innerText =
+        `Neteisingos raidės: ${incorrectLetters.join(', ')}`;
     }
 
     function guessLetter(letter, button) {
@@ -167,6 +181,7 @@
 
       updateWordDisplay();
       updateStatus();
+      updateIncorrectLetters();
       drawHangman();
       checkGameOver();
     }
@@ -218,10 +233,11 @@
       document.getElementById('hangman').style.display = 'none';
       document.getElementById('keyboard').style.display = 'none';
       document.getElementById('word').innerText = '';
+      document.getElementById('incorrect-letters').innerText = '';
 
       selectedWord = '';
       guessedLetters = [];
-      remainingGuesses = 6; // Also reset here
+      remainingGuesses = 6;
     }
 
     function returnHome() {
