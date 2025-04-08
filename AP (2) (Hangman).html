@@ -78,7 +78,7 @@
   </style>
 </head>
 <body>
-  <h1>Pakaruoklis</h1>
+  <h1>Kartuvės</h1>
 
   <div id="hangman"></div>
   <div id="word"></div>
@@ -151,7 +151,7 @@
         .map(l => (guessedLetters.includes(l) ? l : '_'))
         .join(' ');
       document.getElementById('word').innerText = word;
-      document.getElementById('letters').innerText = `Neteisingos raidės: ${guessedLetters.join(', ')}`;
+      document.getElementById('letters').innerText = `Teisingos raidės: ${guessedLetters.join(', ')}`;
     }
 
     function guessLetter(letter, button) {
